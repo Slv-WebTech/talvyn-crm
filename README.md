@@ -1,4 +1,4 @@
-# Aurora CRM
+# Talvyn
 
 A role-based CRM for sales teams — leads, customers, a drag-and-drop pipeline, follow-ups, tasks, and a live dashboard, in one place.
 

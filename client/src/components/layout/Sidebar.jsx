@@ -41,7 +41,7 @@ export function Sidebar({ open = false, onClose }) {
           <span className="sidebar-brand-mark">
             <Sparkles size={16} strokeWidth={2.5} />
           </span>
-          Aurora
+          Talvyn
         </div>
         <ul className="sidebar-nav">
           {NAV_ITEMS.map((item) => (

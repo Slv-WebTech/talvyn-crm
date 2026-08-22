@@ -1,4 +1,4 @@
-# Aurora CRM — Client
+# Talvyn — Client
 
 React 19 + Vite frontend. See the [root README](../README.md) for setup and the [docs](../docs) for architecture, API reference, and the UI/UX style guide.
 

@@ -32,4 +32,6 @@
 - Routes now code-split via `React.lazy`/`Suspense` in `AppRoutes.jsx` — resolves the `TECHNICAL_DEBT.md` bundle-size item.
 - Added global `prefers-reduced-motion` support and an `.sr-only` utility in `index.css`.
 - Wired delete UI for leads, customers, opportunities, tasks, and follow-ups — the service-layer `deleteX` functions and backend routes already existed, but nothing in the UI called them until now. Lead/Customer detail pages got a header "Delete" button (with `ConfirmDialog`, navigating back to the list on success); `TaskList`/`FollowUpList` got an optional `onDelete` prop wired into the standalone Tasks/Follow-ups pages and both detail pages' embedded lists; kanban `OpportunityCard`s got a small icon delete button.
-- See `DECISIONS.md` for the full rationale.
+- Added a root `README.md` (features, tech stack, setup, project structure) and trimmed `client/README.md` down from the generic Vite template to a short pointer at it.
+- Initialized a git repo scoped to `D:\crm-application` (not the drive-wide repo the project's git-ops decision had explicitly avoided) and pushed to a new public GitHub repo, `Slv-WebTech/talvyn-crm`, over the personal SSH key/account — see the "Project name" decision below.
+- Named the project "Talvyn" (an initial pick, "Aurora", was rejected as too generic/overused) — verified via web search to not collide with any existing CRM, software, or company name. Updated the sidebar wordmark and `index.html` title to match. See `DECISIONS.md`.

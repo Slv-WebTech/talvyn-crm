@@ -4,6 +4,16 @@ Newest first.
 
 ---
 
+### Decision: Project name — Talvyn
+**Date**: 2026-08-22
+**Context**: Ahead of the initial public push to GitHub (`Slv-WebTech/talvyn-crm`), the project needed a real name — internally it had only ever been called "the CRM"/"CRM System". A first pick, "Aurora", was flagged as too generic/overused (a common name across unrelated SaaS, databases, and consumer products) rather than genuinely distinctive.
+**Options considered**: (a) keep "Aurora"; (b) pick a short, real English word (e.g. "Slate", "Loop", "Arc"); (c) an invented, non-dictionary name, verified via web search to not collide with an existing product/company.
+**Decision**: (c) — "Talvyn". Verified via web search to have no existing CRM, software, or company using this name (unlike several other candidates checked and rejected for direct collisions, e.g. "Corvane", "Vantora", "Orvexa").
+**Reason**: (b) turned out to have a very high collision rate — nearly every short, attractive real word in this space is already claimed by an existing product (confirmed by search during this process). An invented word, checked rather than assumed clean, was the only reliable way to get something both attractive and genuinely not copied from another brand.
+**Consequences**: Sidebar wordmark, `index.html` title, and both README files use "Talvyn"; the GitHub repo was renamed from `aurora-crm` to `talvyn-crm` (`gh repo rename`) and the local `origin` remote updated to match. Internal workspace package names (`client`/`server`/`crm-application` in `package.json`) were left unchanged — purely internal build-tooling identifiers, not user-facing branding.
+
+---
+
 ### Decision: Wire delete UI for leads/customers/opportunities/tasks/follow-ups
 **Date**: 2026-08-22
 **Context**: Follow-up to the same day's UI/UX audit-and-polish pass, which had explicitly left this out of scope (see the entry below — its "left out of scope" note is now superseded by this one). The service-layer `deleteX` functions and backend `DELETE` routes already existed for all five entities, but no page rendered a delete button for any of them.

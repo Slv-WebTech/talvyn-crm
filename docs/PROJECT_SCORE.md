@@ -1,0 +1,28 @@
+# Project Score
+
+Re-scored 2026-08-17 after the dark premium redesign and its live-browser verification. First scored 2026-08-14 after Core MVP completion (see `CHANGELOG.md` for that baseline). Every category is evidence-based, not aspirational.
+
+| Category | Score /10 | Reasoning |
+|---|---|---|
+| Architecture | 7 | Clean module-per-domain layering (routes→controller→service→validation) on the backend, consistent service-layer pattern on the frontend. The Lead/Customer/Opportunity split with an explicit convert transaction is a deliberate, defensible modeling choice, not an accident. Loses points for no automated tests guarding the architecture's most important invariant (ownership scoping). |
+| Code quality | 7 | Consistent patterns across all 7 backend modules and all frontend pages; real bugs found during verification passes were fixed and documented, not hidden (Express 5 `req.query`; two CSS specificity bugs in the redesign). No dead code, no premature abstraction. Missing: JSDoc/type safety (deliberate — plain JS per `DECISIONS.md`). |
+| Maintainability | 7 | `/docs` suite (this one) is unusually thorough for a project this size, which materially helps maintainability. Shared utilities (`ownership.js`, `ApiError`/`asyncHandler`, `LinkPicker`) avoid duplication. The redesign added a global CSS baseline specifically to prevent a class of "unstyled element in an unexpected location" bug from recurring — a maintainability improvement, not just a visual one. |
+| UI/UX | 8 | Was 6 pre-redesign. Cohesive dark premium visual system (Linear/Vercel-style) verified live across every page: icon-led navigation, gradient/glow accents used with restraint, semantic color-coding (Won/Lost bars, badges), smooth micro-interactions, real drag-and-drop confirmed working post-redesign. Still missing: no keyboard-accessible alternative to the kanban drag-and-drop, no true search-as-you-type load testing at scale. |
+| Accessibility | 5 | Was 4. `color-scheme: dark` now gives native form controls correct contrast (was a real, fixed bug — see `DECISIONS.md`); `:focus-visible` rings are accent-colored and visible. Still baseline only — no formal audit, no keyboard fallback for drag-and-drop. |
+| Performance | 6 | No obvious inefficiencies at MVP data volumes; dashboard queries use `Promise.all` for parallelism. Bundle is unsplit (>500kB, see `TECHNICAL_DEBT.md`); adding `lucide-react` for the redesign moved it by under 2kB thanks to tree-shaking, confirmed by comparing build output before/after. |
+| Security | 6 | Passwords hashed (bcryptjs), JWT re-validated against the DB every request, row-level ownership scoping verified correctly blocking cross-rep access, input validated with zod. No rate limiting, JWT in `localStorage` rather than httpOnly cookies — both documented, deliberate MVP tradeoffs (see `TECHNICAL_DEBT.md`). |
+| Testing | 2 | Zero automated tests — deliberately deferred. The manual verification performed was genuinely thorough across two passes (full curl walkthrough + live browser walkthrough including real drag-and-drop, re-verified after the redesign), but it doesn't prevent future regressions the way a test suite would. Still the weakest category by a wide margin. |
+| Documentation | 9 | This `/docs` suite is comprehensive, honest, and describes real, verified behavior rather than a plan. Kept in sync throughout both the build and the redesign, including recording the bugs found and how they were fixed. |
+| Scalability | 5 | Reasonable for a single small-to-mid sales team. Would need connection pooling review, pagination on the kanban board, and query index review before it could handle meaningfully larger data volumes. |
+| Developer experience | 8 | `pnpm dev` boots both processes cleanly, `node --watch` gives fast backend iteration, Vite gives near-instant frontend HMR, Prisma Studio available for DB inspection. Confirmed working smoothly across the whole build and redesign. |
+| Error handling | 7 | Consistent `ApiError`/global-handler pattern on the backend; frontend has both inline form errors and toast feedback for quick actions. Convert-lead's known race-condition edge case is documented, not silently ignored. |
+| Responsive design | 6 | `@media (max-width: 768px)` breakpoints on the app shell and kanban board, verified in code (not yet tested on an actual narrow viewport — a gap worth closing before calling responsive design "done"). |
+| Feature completeness | 9 | All 7 Core MVP feature areas (auth/RBAC, leads, customers, pipeline, follow-ups, tasks, dashboard) are built and verified working, now with a cohesive premium visual layer on top. Only the explicitly-deferred Phase 2 items (reports, notifications, bonus features) are missing, by design. |
+
+**Overall health score: 6.6/10** (was 6.4). The redesign genuinely moved UI/UX and, incidentally, accessibility (via the `color-scheme` fix) — but the two structural gaps from the MVP score are unchanged: automated test coverage is still the biggest lever for improvement, followed by an actual-device accessibility/responsive-design pass.
+
+## Recommended Improvements (in priority order)
+1. Automated tests for the RBAC/ownership-scoping logic and the convert-lead transaction — the two highest-consequence-if-broken pieces of code in the app.
+2. Verify responsive breakpoints on an actual narrow viewport, not just in code.
+3. Basic rate limiting on `/auth/login` and `/auth/register` before any non-local deployment.
+4. Revisit this score after the next significant round of work (report export, notifications, or a deployment pass — see `PROJECT_PLAN.md`).

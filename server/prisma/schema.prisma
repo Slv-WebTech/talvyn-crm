@@ -1,0 +1,210 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ─── Enums ───────────────────────────────────────────────
+
+enum Role {
+  ADMIN
+  SALES_MANAGER
+  SALES_EXECUTIVE
+}
+
+enum LeadStatus {
+  NEW
+  CONTACTED
+  QUALIFIED
+  CONVERTED
+  LOST
+}
+
+enum OpportunityStage {
+  NEW_LEAD
+  CONTACTED
+  QUALIFIED
+  PROPOSAL_SENT
+  NEGOTIATION
+  WON
+  LOST
+}
+
+enum FollowUpType {
+  CALL
+  MEETING
+  EMAIL
+  REMINDER
+  OTHER
+}
+
+enum FollowUpStatus {
+  PENDING
+  COMPLETED
+  CANCELLED
+}
+
+enum TaskStatus {
+  PENDING
+  IN_PROGRESS
+  COMPLETED
+}
+
+// ─── Models ──────────────────────────────────────────────
+
+model User {
+  id       String  @id @default(uuid())
+  name     String
+  email    String  @unique
+  password String
+  role     Role    @default(SALES_EXECUTIVE)
+  isActive Boolean @default(true)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  assignedLeads         Lead[]        @relation("LeadAssignee")
+  ownedCustomers        Customer[]    @relation("CustomerOwner")
+  assignedOpportunities Opportunity[] @relation("OpportunityAssignee")
+  assignedFollowUps     FollowUp[]    @relation("FollowUpAssignee")
+  assignedTasks         Task[]        @relation("TaskAssignee")
+  createdTasks          Task[]        @relation("TaskCreator")
+}
+
+model Lead {
+  id      String     @id @default(uuid())
+  name    String
+  company String
+  email   String
+  phone   String?
+  source  String?
+  status  LeadStatus @default(NEW)
+  notes   String?
+
+  assignedToId String?
+  assignedTo   User?   @relation("LeadAssignee", fields: [assignedToId], references: [id])
+
+  convertedAt           DateTime?
+  convertedToCustomerId String?   @unique
+  convertedToCustomer   Customer? @relation("LeadConversion", fields: [convertedToCustomerId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  followUps     FollowUp[]
+  opportunities Opportunity[]
+  tasks         Task[]
+
+  @@unique([email, company], name: "email_company_unique")
+  @@index([assignedToId])
+  @@index([status])
+}
+
+model Customer {
+  id      String  @id @default(uuid())
+  name    String
+  email   String? @unique
+  phone   String?
+  company String?
+  address String?
+  notes   String?
+
+  ownerId String?
+  owner   User?   @relation("CustomerOwner", fields: [ownerId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  convertedFromLead Lead?         @relation("LeadConversion")
+  opportunities     Opportunity[]
+  followUps         FollowUp[]
+  tasks             Task[]
+
+  @@index([ownerId])
+}
+
+model Opportunity {
+  id    String           @id @default(uuid())
+  title String
+  value Decimal?         @db.Decimal(12, 2)
+  stage OpportunityStage @default(NEW_LEAD)
+
+  customerId String
+  customer   Customer @relation(fields: [customerId], references: [id])
+
+  leadId String?
+  lead   Lead?   @relation(fields: [leadId], references: [id])
+
+  assignedToId String?
+  assignedTo   User?   @relation("OpportunityAssignee", fields: [assignedToId], references: [id])
+
+  expectedCloseDate DateTime?
+  closedAt          DateTime?
+  notes             String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  followUps FollowUp[]
+  tasks     Task[]
+
+  @@index([stage])
+  @@index([assignedToId])
+  @@index([customerId])
+}
+
+model FollowUp {
+  id          String         @id @default(uuid())
+  type        FollowUpType   @default(CALL)
+  notes       String?
+  scheduledAt DateTime
+  status      FollowUpStatus @default(PENDING)
+  completedAt DateTime?
+
+  assignedToId String
+  assignedTo   User   @relation("FollowUpAssignee", fields: [assignedToId], references: [id])
+
+  leadId        String?
+  lead          Lead?        @relation(fields: [leadId], references: [id])
+  customerId    String?
+  customer      Customer?    @relation(fields: [customerId], references: [id])
+  opportunityId String?
+  opportunity   Opportunity? @relation(fields: [opportunityId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([assignedToId])
+  @@index([scheduledAt])
+  @@index([status])
+}
+
+model Task {
+  id          String     @id @default(uuid())
+  title       String
+  description String?
+  status      TaskStatus @default(PENDING)
+  dueDate     DateTime?
+  completedAt DateTime?
+
+  assignedToId String
+  assignedTo   User   @relation("TaskAssignee", fields: [assignedToId], references: [id])
+  createdById  String
+  createdBy    User   @relation("TaskCreator", fields: [createdById], references: [id])
+
+  leadId        String?
+  lead          Lead?        @relation(fields: [leadId], references: [id])
+  customerId    String?
+  customer      Customer?    @relation(fields: [customerId], references: [id])
+  opportunityId String?
+  opportunity   Opportunity? @relation(fields: [opportunityId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([assignedToId])
+  @@index([status])
+}

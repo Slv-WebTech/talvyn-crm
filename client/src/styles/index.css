@@ -10,7 +10,7 @@
   /* Text */
   --color-text: #f4f4f6;
   --color-text-secondary: #b4b4bf;
-  --color-muted: #7a7a87;
+  --color-muted: #8b8b99; /* >=4.5:1 on card surfaces (was #7a7a87, 4.1:1) */
 
   /* Accent — violet/indigo glow */
   --color-primary: #7c6ef2;

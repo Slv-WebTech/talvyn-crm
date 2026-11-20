@@ -8,9 +8,11 @@ import {
   CalendarClock,
   ListChecks,
   ShieldCheck,
+  ScrollText,
   Sparkles,
 } from 'lucide-react'
 import { useAuth } from '../../hooks/useAuth.js'
+import { isElevated } from '../../utils/roles.js'
 
 const NAV_ITEMS = [
   { to: '/', label: 'Dashboard', end: true, icon: LayoutDashboard },
@@ -52,6 +54,14 @@ export function Sidebar({ open = false, onClose }) {
               </NavLink>
             </li>
           ))}
+          {isElevated(user) && (
+            <li>
+              <NavLink to="/audit-log">
+                <ScrollText size={17} strokeWidth={2} />
+                <span>Audit Log</span>
+              </NavLink>
+            </li>
+          )}
           {user?.role === 'ADMIN' && (
             <li>
               <NavLink to="/users">

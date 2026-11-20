@@ -6,7 +6,7 @@ export const list = asyncHandler(async (req, res) => {
 })
 
 export const create = asyncHandler(async (req, res) => {
-  res.status(201).json(await usersService.createUser(req.body))
+  res.status(201).json(await usersService.createUser(req.user, req.body))
 })
 
 export const getOne = asyncHandler(async (req, res) => {
@@ -14,9 +14,9 @@ export const getOne = asyncHandler(async (req, res) => {
 })
 
 export const update = asyncHandler(async (req, res) => {
-  res.json(await usersService.updateUser(req.params.id, req.body))
+  res.json(await usersService.updateUser(req.user, req.params.id, req.body))
 })
 
 export const deactivate = asyncHandler(async (req, res) => {
-  res.json(await usersService.deactivateUser(req.params.id))
+  res.json(await usersService.deactivateUser(req.user, req.params.id))
 })

@@ -47,6 +47,13 @@ _Status: all routes below are implemented and were verified via a live curl walk
 | PUT | `/tasks/:id` | any (scoped) | Update |
 | PATCH | `/tasks/:id/status` | any (scoped) | Quick status change |
 | DELETE | `/tasks/:id` | any (scoped) | Delete |
+| GET | `/call-logs` | any (scoped) | List (`?outcome=&leadId=&customerId=&opportunityId=`) |
+| POST | `/call-logs` | any (scoped) | Log a call; must link ≥1 of lead/customer/opportunity |
+| GET/PUT/DELETE | `/call-logs/:id` | any (scoped) | Get / edit / delete |
+| GET | `/notifications` | authenticated | Current user's notifications |
+| PATCH | `/notifications/read-all`, `/notifications/:id/read` | authenticated | Mark read |
+| GET | `/audit-logs` | ADMIN, SALES_MANAGER | Paginated audit trail (`?entityType=&entityId=&userId=`); sensitive fields are redacted on write |
+| GET | `/health` | public | Liveness check |
 | GET | `/dashboard/summary` | any (scoped) | totalCustomers, totalLeads, dealsWon, dealsLost, monthlyRevenue, pipelineByStage, salesPerformance |
 | GET | `/dashboard/upcoming-followups` | any (scoped) | Next N pending follow-ups |
 | GET | `/dashboard/revenue-trend` | any (scoped) | Monthly Won-value totals, last 6 months |

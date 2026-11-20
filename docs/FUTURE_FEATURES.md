@@ -1,4 +1,6 @@
-# Future Features (Phase 2 — not built in the current MVP pass)
+# Future Features (Phase 2)
+
+> Notifications, audit logs, automated tests (server), the call-logs API and a GitHub Actions CI workflow are now built; see `CHANGELOG.md`. Entries below that mention them are kept for history and the remaining scope (call-log UI, real-time delivery, DB tests in CI).
 
 ## High Priority
 - **PDF/Excel report export** — sales performance, lead conversion rate, employee performance, revenue, customer growth reports, exportable. *Complexity*: moderate (a PDF lib like `pdfkit` + an Excel lib like `exceljs`, plus report-query design). *Dependency*: Dashboard aggregates (already built by then). *Risk*: report query performance at scale if not indexed carefully.
@@ -23,4 +25,4 @@
 - **Predictive sales analytics / forecasting** — same dependency on accumulated real data.
 - **Multi-tenant support** — significant architectural change (every model would need a tenant/org FK and every query scoped by it); only worth it if the product direction shifts from single-org to multi-customer SaaS.
 
-None of the above are implemented; do not build them without an explicit request, per project process.
+Items not called out in the note above are not implemented; do not build them without an explicit request, per project process.

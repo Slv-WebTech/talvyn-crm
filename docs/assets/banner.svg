@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 300" width="1200" height="300" role="img" aria-label="Talvyn CRM">
+  <defs>
+    <linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#7c6ef2"/><stop offset="1" stop-color="#22d3ee"/></linearGradient>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#0a0a0f"/><stop offset="1" stop-color="#171433"/></linearGradient>
+    <radialGradient id="glow" cx=".8" cy=".1" r=".7"><stop offset="0" stop-color="#7c6ef2" stop-opacity=".45"/><stop offset="1" stop-color="#7c6ef2" stop-opacity="0"/></radialGradient>
+  </defs>
+  <rect width="1200" height="300" fill="url(#bg)"/>
+  <rect width="1200" height="300" fill="url(#glow)"/>
+  <g fill="none" stroke="#7c6ef2" stroke-opacity=".25" stroke-width="2">
+    <rect x="760" y="60" width="110" height="180" rx="12"/><rect x="890" y="60" width="110" height="180" rx="12"/><rect x="1020" y="60" width="110" height="180" rx="12"/>
+  </g>
+  <g fill="url(#g)" fill-opacity=".8"><rect x="772" y="76" width="86" height="30" rx="7"/><rect x="772" y="116" width="86" height="30" rx="7"/><rect x="902" y="76" width="86" height="30" rx="7"/><rect x="1032" y="76" width="86" height="30" rx="7"/></g>
+  <g transform="translate(70 90) scale(1.9)">
+    <rect width="64" height="64" rx="16" fill="url(#g)"/>
+    <path d="M16 18h32v8H36v22h-8V26H16z" fill="#fff"/><circle cx="46" cy="44" r="4.5" fill="#fff" fill-opacity=".85"/>
+  </g>
+  <text x="225" y="150" font-family="Inter, 'Segoe UI', Arial, sans-serif" font-size="68" font-weight="800" fill="#f4f4f8">Talvyn <tspan fill="url(#g)">CRM</tspan></text>
+  <text x="228" y="196" font-family="Inter, 'Segoe UI', Arial, sans-serif" font-size="26" fill="#a9a9bd">Every lead, one clear path to revenue.</text>
+</svg>

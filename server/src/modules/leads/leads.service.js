@@ -2,6 +2,8 @@ import { prisma } from '../../lib/prisma.js'
 import { ApiError } from '../../utils/ApiError.js'
 import { scopeToOwner, assertOwnership, isElevated } from '../../utils/ownership.js'
 import { parsePagination } from '../../utils/pagination.js'
+import { recordAudit } from '../../utils/auditLog.js'
+import { notify } from '../../utils/notify.js'
 
 function normalizeEmail(email) {
   return email.trim().toLowerCase()
@@ -47,9 +49,19 @@ export async function createLead(user, data) {
 
   const assignedToId = isElevated(user) ? (data.assignedToId ?? user.id) : user.id
 
-  return prisma.lead.create({
+  const lead = await prisma.lead.create({
     data: { ...data, email, assignedToId, status: 'NEW' },
   })
+
+  await recordAudit(user, 'CREATE', 'Lead', lead.id, data)
+  if (assignedToId !== user.id) {
+    await notify(assignedToId, 'LEAD_ASSIGNED', `You were assigned a new lead: ${lead.name} (${lead.company})`, {
+      type: 'lead',
+      id: lead.id,
+    })
+  }
+
+  return lead
 }
 
 export async function getLeadById(user, id) {
@@ -66,21 +78,36 @@ export async function updateLead(user, id, data) {
     throw new ApiError(403, 'Only an Admin or Sales Manager can reassign a lead')
   }
 
+  if (existing.status === 'CONVERTED' && data.status && data.status !== 'CONVERTED') {
+    throw new ApiError(400, 'A converted lead cannot change status')
+  }
+
   const nextData = { ...data }
   if (nextData.email) nextData.email = normalizeEmail(nextData.email)
 
-  return prisma.lead.update({ where: { id }, data: nextData })
+  const lead = await prisma.lead.update({ where: { id }, data: nextData })
+  await recordAudit(user, 'UPDATE', 'Lead', id, nextData)
+
+  if (nextData.assignedToId && nextData.assignedToId !== existing.assignedToId && nextData.assignedToId !== user.id) {
+    await notify(nextData.assignedToId, 'LEAD_ASSIGNED', `You were assigned a lead: ${lead.name} (${lead.company})`, {
+      type: 'lead',
+      id: lead.id,
+    })
+  }
+
+  return lead
 }
 
 export async function deleteLead(user, id) {
   await getLeadById(user, id)
   await prisma.lead.delete({ where: { id } })
+  await recordAudit(user, 'DELETE', 'Lead', id)
 }
 
 // The core Lead -> Customer/Opportunity bridge. Wrapped in a transaction so the
 // Customer, Opportunity, and Lead status change either all land or none do.
 export async function convertLead(user, id) {
-  return prisma.$transaction(async (tx) => {
+  const result = await prisma.$transaction(async (tx) => {
     const lead = await tx.lead.findUnique({ where: { id } })
     if (!lead) throw new ApiError(404, 'Lead not found')
     assertOwnership(user, lead, 'assignedToId')
@@ -97,7 +124,22 @@ export async function convertLead(user, id) {
       throw new ApiError(400, 'Cannot convert a lost lead')
     }
 
+    // Row-lock guard: a concurrent convert blocks here, then re-evaluates the
+    // WHERE after the first commits and matches nothing -> 409 (closes the race).
+    const claimed = await tx.lead.updateMany({
+      where: { id, status: { notIn: ['CONVERTED', 'LOST'] } },
+      data: { updatedAt: new Date() },
+    })
+    if (claimed.count === 0) {
+      throw new ApiError(409, 'Lead has already been converted')
+    }
+
     let customer = await tx.customer.findUnique({ where: { email: lead.email } })
+    let customerCreated = false
+    if (customer && customer.ownerId && !isElevated(user) && customer.ownerId !== user.id) {
+      // Don't let a rep attach deals to a customer another rep owns.
+      throw new ApiError(409, 'A customer with this email already exists and belongs to another user')
+    }
     if (!customer) {
       customer = await tx.customer.create({
         data: {
@@ -108,6 +150,8 @@ export async function convertLead(user, id) {
           ownerId: lead.assignedToId,
         },
       })
+      customerCreated = true
+      await recordAudit(user, 'CREATE', 'Customer', customer.id, null, tx)
     }
 
     const opportunity = await tx.opportunity.create({
@@ -120,12 +164,26 @@ export async function convertLead(user, id) {
         notes: lead.notes,
       },
     })
+    await recordAudit(user, 'CREATE', 'Opportunity', opportunity.id, null, tx)
 
     const updatedLead = await tx.lead.update({
       where: { id: lead.id },
       data: { status: 'CONVERTED', convertedAt: new Date(), convertedToCustomerId: customer.id },
     })
+    await recordAudit(user, 'UPDATE', 'Lead', updatedLead.id, { status: 'CONVERTED' }, tx)
 
-    return { lead: updatedLead, customer, opportunity }
+    return { lead: updatedLead, customer, customerCreated, opportunity }
   })
+
+  const { customerCreated, ...response } = result
+  if (customerCreated && result.customer.ownerId && result.customer.ownerId !== user.id) {
+    await notify(
+      result.customer.ownerId,
+      'LEAD_ASSIGNED',
+      `A new customer was created from a converted lead: ${result.customer.name}`,
+      { type: 'customer', id: result.customer.id },
+    )
+  }
+
+  return response
 }

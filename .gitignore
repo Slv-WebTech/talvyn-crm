@@ -1,9 +1,17 @@
 node_modules/
 .env
+.env.*
 !.env.example
 dist/
 build/
+coverage/
 *.log
+*.tsbuildinfo
+*.local
+*.pem
+*.key
+*.dump
 .DS_Store
+Thumbs.db
 .claude/settings.local.json
 .claude/scheduled_tasks.lock

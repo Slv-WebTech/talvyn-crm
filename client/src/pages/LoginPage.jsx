@@ -39,7 +39,7 @@ export function LoginPage() {
           <input
             type="email"
             required
-            autoComplete="email"
+            autoComplete="username"
             value={form.email}
             onChange={(e) => setForm({ ...form, email: e.target.value })}
           />

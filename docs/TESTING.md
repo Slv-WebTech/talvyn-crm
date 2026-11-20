@@ -1,7 +1,10 @@
 # Testing
 
-## Current Strategy
-No automated test suite exists — explicitly deferred for MVP scope (see `FUTURE_FEATURES.md` and `TECHNICAL_DEBT.md`, which is the honest place this gap is tracked as risk). All verification for the Core MVP build was **manual**, performed in two passes on 2026-08-14.
+## Automated tests
+`pnpm --filter server test` runs a small `node:test` suite (`server/test/`): ownership/RBAC scoping, unauthenticated access to protected routes, request validation, and audit-log redaction. These need no database. DB-backed integration tests (convert-lead idempotency/concurrency, stage transitions, duplicate leads) are still not automated.
+
+## Original strategy (historical)
+No automated test suite existed at MVP — explicitly deferred (see `FUTURE_FEATURES.md` and `TECHNICAL_DEBT.md`, which is the honest place this gap is tracked as risk). All verification for the Core MVP build was **manual**, performed in two passes on 2026-08-14.
 
 ### Pass 1 — Backend, via curl
 Chained shell script against the running dev server, covering:

@@ -15,5 +15,8 @@ Status values: `PLANNED`, `IN_PROGRESS`, `IMPLEMENTED`, `TESTING`, `PARTIALLY_IM
 | Task management | Create/assign/track action items | Turns "next steps" into trackable work | Auth & RBAC | IMPLEMENTED | TasksPage | `/tasks/*` |
 | Dashboard | Aggregate stats, charts, upcoming follow-ups | At-a-glance view of business health, scoped to the viewer's role | All above modules | IMPLEMENTED | DashboardPage | `/dashboard/*` |
 | Report export (PDF/Excel) | Download formatted reports | — | Dashboard aggregates | **Deferred — Phase 2**, see `FUTURE_FEATURES.md` | — | — |
-| Notifications | Real-time/in-app alerts | — | — | **Deferred — Phase 2** | — | — |
-| Bonus features (AI scoring, integrations, PWA, CI/CD, audit logs, tests) | — | — | — | **Deferred — Phase 2** | — | — |
+| Notifications | In-app bell: persisted alerts plus computed overdue-task / upcoming-follow-up reminders | Surfaces what needs attention | FollowUp/Task | IMPLEMENTED | Topbar bell | `/notifications/*` |
+| Call logs | Record call outcomes against a lead/customer/opportunity | Distinct call history | Lead/Customer/Opportunity | PARTIALLY_IMPLEMENTED (API only, no UI) | — | `/call-logs/*` |
+| Audit logs | Who changed what, when (passwords redacted); admin viewer | Accountability | Auth & RBAC | IMPLEMENTED | AuditLogPage | `/audit-logs` |
+| Automated tests | node:test unit/HTTP suite plus opt-in DB suite | Regression safety | — | IMPLEMENTED | — | `pnpm --filter server test` |
+| Bonus features (AI scoring, integrations, PWA) | — | — | — | **Deferred — Phase 2** | — | — |

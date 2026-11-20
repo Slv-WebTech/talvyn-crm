@@ -23,6 +23,7 @@ export function KanbanBoard({ opportunities, onStageChange, onDelete }) {
             stage={stage}
             opportunities={opportunities.filter((o) => o.stage === stage)}
             onDelete={onDelete}
+            onStageChange={onStageChange}
           />
         ))}
       </div>

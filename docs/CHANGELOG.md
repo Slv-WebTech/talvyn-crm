@@ -1,5 +1,15 @@
 # Changelog
 
+## 2026-11 PR: docs, branding and repo config
+- New README, original logo/banner/favicon/social-preview assets (`docs/assets/`), Open Graph/meta tags in `client/index.html`, `.github/` (PR/issue templates, CI workflow), stricter `.gitignore`.
+- Notifications (bell + computed reminders), audit logs page, call-logs API, QA remediation (accessibility, mobile tables, last-admin guard, password policy, `TRUST_PROXY`, kanban stage select). Open items: `QA-REPORT.md`.
+
+## Review follow-up (hardening)
+- Security: `helmet`, 100kb JSON body limit, rate limiting on `/auth/login` and `/auth/register` (20/15 min/IP, off under `NODE_ENV=test`), `DATABASE_URL`/`JWT_SECRET` now required at startup (secret ≥16 chars), optional `ALLOW_REGISTRATION=false`, audit-log change sets redact password/token/secret keys, production uses `combined` request logging.
+- Convert-lead race closed with a conditional `updateMany` row-lock guard inside the transaction.
+- Call logs API completed (`/call-logs`, scoped like follow-ups) plus `client/src/services/callLogs.service.js`; no call-log UI yet.
+- First automated tests: `pnpm --filter server test` (node:test) covering ownership scoping, auth guards, validation and audit redaction.
+
 ## 2026-08-14
 - Project initiated. Requirements and architecture confirmed with user (stack: React/Vite + Express + PostgreSQL/Prisma; scope: Core MVP first; package manager: pnpm; language: plain JS).
 - Documentation-first protocol adopted; `/docs` baseline suite created (this changelog included) reflecting the true greenfield state — no code written yet.

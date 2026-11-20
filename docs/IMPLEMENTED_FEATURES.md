@@ -2,6 +2,10 @@
 
 Everything below exists in real code and was verified working — either via a live curl walkthrough against the running server, a live browser walkthrough, or both. Core MVP verified 2026-08-14; the visual redesign verified 2026-08-17. Nothing here is claimed on the strength of a plan alone.
 
+## Review follow-up and QA remediation (2026-11)
+- **What**: helmet, body-size limit, auth rate limits, required `DATABASE_URL`/`JWT_SECRET`, `ALLOW_REGISTRATION`, `TRUST_PROXY`, password policy, last-admin guard, convert-lead race guard and ownership check, opportunity reassignment and `closedAt` rules, Prisma FK/body-parser error mapping; call-logs API, notifications (bell, computed reminders, unread badge), audit logs (admin page, password redaction); accessibility and mobile fixes (skip link, per-route titles, stacked-card tables, kanban stage select).  
+- **Verified**: server tests (`pnpm --filter server test`, plus `RUN_DB_TESTS=1` DB suite), lint, build, live Chrome pass. Details and the 6 still-open items: `QA-REPORT.md`.
+
 ## UI/UX Audit & Polish Pass (2026-08-22)
 - **Where**: `client/src/components/common/Modal.jsx`, `ConfirmDialog.jsx`, `Skeleton.jsx` (new), `Combobox.jsx` (new), `context/ToastContext.jsx`, `routes/ProtectedRoute.jsx`, `routes/AppRoutes.jsx`, `components/layout/{AppLayout,Sidebar,Topbar}.jsx`, `pages/UsersPage.jsx`, `components/pipeline/OpportunityForm.jsx`, `components/common/LinkPicker.jsx`, `styles/*.css`.
 - **What**: focus-trapped, ARIA-compliant `Modal` with Escape-to-close and body-scroll lock; toast notifications with per-tone icons, an exit animation, and `aria-live`; a new `Skeleton` family replacing blocking spinners on the dashboard, leads, customers, tasks, follow-ups, users, pipeline, and both detail pages; a new `Combobox` searchable picker replacing the plain customer/record `<select>`s; a hamburger-triggered off-canvas mobile nav drawer; route-based code-splitting (`React.lazy`/`Suspense`); `ConfirmDialog` wired into the Users page's Deactivate action; global `prefers-reduced-motion` support; the unstyled `ProtectedRoute` loading state fixed.
@@ -20,7 +24,7 @@ Everything below exists in real code and was verified working — either via a l
 ## Authentication & RBAC
 - **Where**: `server/src/modules/auth/`, `server/src/middleware/auth.js`, `client/src/context/AuthContext.jsx`
 - **Verified**: register (auto-assigns `SALES_EXECUTIVE`), login, `/auth/me` session rehydration, JWT re-validates the user from the DB on every request. Role gate confirmed: a Sales Executive gets `403` on `GET /users`; an Admin gets `200`.
-- **Limitations**: no rate limiting on login/register (see `TECHNICAL_DEBT.md`).
+- **Limitations**: login/register are rate limited (20/15 min/IP, in-memory store); JWT still lives in `localStorage` (see `QA-REPORT.md`).
 
 ## User Management (Admin)
 - **Where**: `server/src/modules/users/`, `client/src/pages/UsersPage.jsx`

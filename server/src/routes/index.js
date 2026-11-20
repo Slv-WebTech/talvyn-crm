@@ -7,6 +7,9 @@ import { opportunitiesRouter } from '../modules/opportunities/opportunities.rout
 import { followUpsRouter } from '../modules/followups/followups.routes.js'
 import { tasksRouter } from '../modules/tasks/tasks.routes.js'
 import { dashboardRouter } from '../modules/dashboard/dashboard.routes.js'
+import { notificationsRouter } from '../modules/notifications/notifications.routes.js'
+import { callLogsRouter } from '../modules/calllogs/calllogs.routes.js'
+import { auditLogsRouter } from '../modules/auditlogs/auditlogs.routes.js'
 
 export const apiRouter = Router()
 
@@ -22,3 +25,6 @@ apiRouter.use('/opportunities', opportunitiesRouter)
 apiRouter.use('/followups', followUpsRouter)
 apiRouter.use('/tasks', tasksRouter)
 apiRouter.use('/dashboard', dashboardRouter)
+apiRouter.use('/notifications', notificationsRouter)
+apiRouter.use('/call-logs', callLogsRouter)
+apiRouter.use('/audit-logs', auditLogsRouter)

@@ -7,6 +7,7 @@ import {
   isElevated,
 } from '../../utils/ownership.js'
 import { parsePagination } from '../../utils/pagination.js'
+import { recordAudit } from '../../utils/auditLog.js'
 
 export async function listFollowUps(user, query) {
   const { page, limit, skip, take } = parsePagination(query)
@@ -38,9 +39,11 @@ export async function createFollowUp(user, data) {
   await assertLinkedRecordsAccessible(user, data)
   const assignedToId = isElevated(user) ? (data.assignedToId ?? user.id) : user.id
 
-  return prisma.followUp.create({
+  const followUp = await prisma.followUp.create({
     data: { ...data, assignedToId, status: 'PENDING' },
   })
+  await recordAudit(user, 'CREATE', 'FollowUp', followUp.id, data)
+  return followUp
 }
 
 export async function getFollowUpById(user, id) {
@@ -53,18 +56,23 @@ export async function getFollowUpById(user, id) {
 export async function updateFollowUp(user, id, data) {
   await getFollowUpById(user, id)
   await assertLinkedRecordsAccessible(user, data)
-  return prisma.followUp.update({ where: { id }, data })
+  const followUp = await prisma.followUp.update({ where: { id }, data })
+  await recordAudit(user, 'UPDATE', 'FollowUp', id, data)
+  return followUp
 }
 
 export async function completeFollowUp(user, id) {
   await getFollowUpById(user, id)
-  return prisma.followUp.update({
+  const followUp = await prisma.followUp.update({
     where: { id },
     data: { status: 'COMPLETED', completedAt: new Date() },
   })
+  await recordAudit(user, 'UPDATE', 'FollowUp', id, { status: 'COMPLETED' })
+  return followUp
 }
 
 export async function deleteFollowUp(user, id) {
   await getFollowUpById(user, id)
   await prisma.followUp.delete({ where: { id } })
+  await recordAudit(user, 'DELETE', 'FollowUp', id)
 }

@@ -53,6 +53,29 @@ enum TaskStatus {
   COMPLETED
 }
 
+enum CallOutcome {
+  CONNECTED
+  NO_ANSWER
+  VOICEMAIL
+  BUSY
+  WRONG_NUMBER
+  FOLLOW_UP_REQUIRED
+}
+
+enum NotificationType {
+  LEAD_ASSIGNED
+  TASK_ASSIGNED
+  OPPORTUNITY_STAGE_CHANGED
+  FOLLOWUP_UPCOMING
+  TASK_OVERDUE
+}
+
+enum AuditAction {
+  CREATE
+  UPDATE
+  DELETE
+}
+
 // ─── Models ──────────────────────────────────────────────
 
 model User {
@@ -66,12 +89,15 @@ model User {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  assignedLeads         Lead[]        @relation("LeadAssignee")
-  ownedCustomers        Customer[]    @relation("CustomerOwner")
-  assignedOpportunities Opportunity[] @relation("OpportunityAssignee")
-  assignedFollowUps     FollowUp[]    @relation("FollowUpAssignee")
-  assignedTasks         Task[]        @relation("TaskAssignee")
-  createdTasks          Task[]        @relation("TaskCreator")
+  assignedLeads         Lead[]         @relation("LeadAssignee")
+  ownedCustomers        Customer[]     @relation("CustomerOwner")
+  assignedOpportunities Opportunity[]  @relation("OpportunityAssignee")
+  assignedFollowUps     FollowUp[]     @relation("FollowUpAssignee")
+  assignedTasks         Task[]         @relation("TaskAssignee")
+  createdTasks          Task[]         @relation("TaskCreator")
+  assignedCallLogs      CallLog[]      @relation("CallLogAssignee")
+  notifications         Notification[] @relation("UserNotifications")
+  auditLogs             AuditLog[]     @relation("UserAuditLogs")
 }
 
 model Lead {
@@ -97,6 +123,7 @@ model Lead {
   followUps     FollowUp[]
   opportunities Opportunity[]
   tasks         Task[]
+  callLogs      CallLog[]
 
   @@unique([email, company], name: "email_company_unique")
   @@index([assignedToId])
@@ -122,6 +149,7 @@ model Customer {
   opportunities     Opportunity[]
   followUps         FollowUp[]
   tasks             Task[]
+  callLogs          CallLog[]
 
   @@index([ownerId])
 }
@@ -150,6 +178,7 @@ model Opportunity {
 
   followUps FollowUp[]
   tasks     Task[]
+  callLogs  CallLog[]
 
   @@index([stage])
   @@index([assignedToId])
@@ -207,4 +236,64 @@ model Task {
 
   @@index([assignedToId])
   @@index([status])
+}
+
+model CallLog {
+  id       String      @id @default(uuid())
+  outcome  CallOutcome
+  duration Int?
+  notes    String?
+  calledAt DateTime    @default(now())
+
+  assignedToId String
+  assignedTo   User   @relation("CallLogAssignee", fields: [assignedToId], references: [id])
+
+  leadId        String?
+  lead          Lead?        @relation(fields: [leadId], references: [id])
+  customerId    String?
+  customer      Customer?    @relation(fields: [customerId], references: [id])
+  opportunityId String?
+  opportunity   Opportunity? @relation(fields: [opportunityId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([assignedToId])
+  @@index([calledAt])
+}
+
+model Notification {
+  id      String           @id @default(uuid())
+  type    NotificationType
+  message String
+  read    Boolean          @default(false)
+  readAt  DateTime?
+
+  userId String
+  user   User   @relation("UserNotifications", fields: [userId], references: [id])
+
+  entityType String?
+  entityId   String?
+
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+  @@index([userId, read])
+}
+
+model AuditLog {
+  id         String      @id @default(uuid())
+  action     AuditAction
+  entityType String
+  entityId   String
+  changes    Json?
+
+  userId String?
+  user   User?   @relation("UserAuditLogs", fields: [userId], references: [id])
+
+  createdAt DateTime @default(now())
+
+  @@index([entityType, entityId])
+  @@index([userId])
+  @@index([createdAt])
 }

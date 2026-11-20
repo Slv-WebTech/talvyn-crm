@@ -2,6 +2,7 @@ import { prisma } from '../../lib/prisma.js'
 import { ApiError } from '../../utils/ApiError.js'
 import { scopeToOwner, assertOwnership } from '../../utils/ownership.js'
 import { parsePagination } from '../../utils/pagination.js'
+import { recordAudit } from '../../utils/auditLog.js'
 
 function searchFilter(search) {
   if (!search) return {}
@@ -26,8 +27,10 @@ export async function listCustomers(user, query) {
   return { items, total, page, limit }
 }
 
-export function createCustomer(user, data) {
-  return prisma.customer.create({ data: { ...data, ownerId: user.id } })
+export async function createCustomer(user, data) {
+  const customer = await prisma.customer.create({ data: { ...data, ownerId: user.id } })
+  await recordAudit(user, 'CREATE', 'Customer', customer.id, data)
+  return customer
 }
 
 export async function getCustomerById(user, id) {
@@ -39,12 +42,15 @@ export async function getCustomerById(user, id) {
 
 export async function updateCustomer(user, id, data) {
   await getCustomerById(user, id)
-  return prisma.customer.update({ where: { id }, data })
+  const customer = await prisma.customer.update({ where: { id }, data })
+  await recordAudit(user, 'UPDATE', 'Customer', id, data)
+  return customer
 }
 
 export async function deleteCustomer(user, id) {
   await getCustomerById(user, id)
   await prisma.customer.delete({ where: { id } })
+  await recordAudit(user, 'DELETE', 'Customer', id)
 }
 
 export async function getCustomerOpportunities(user, id) {

@@ -1,6 +1,7 @@
 import { LogOut, Menu } from 'lucide-react'
 import { useAuth } from '../../hooks/useAuth.js'
 import { formatRole } from '../../utils/roles.js'
+import { NotificationBell } from './NotificationBell.jsx'
 
 function initials(name = '') {
   return name
@@ -29,6 +30,7 @@ export function Topbar({ onMenuClick, menuOpen = false }) {
       </button>
       <div className="topbar-spacer" />
       <div className="topbar-user">
+        <NotificationBell />
         <div className="avatar">{initials(user?.name)}</div>
         <div className="topbar-identity">
           <span className="topbar-name">{user?.name}</span>

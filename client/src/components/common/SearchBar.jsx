@@ -9,6 +9,7 @@ export function SearchBar({ value, onChange, placeholder = 'Search…' }) {
         className="search-bar"
         value={value}
         placeholder={placeholder}
+        aria-label={placeholder}
         onChange={(e) => onChange(e.target.value)}
       />
     </div>

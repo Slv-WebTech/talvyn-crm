@@ -19,6 +19,7 @@ const PipelinePage = lazy(() => import('../pages/PipelinePage.jsx').then((m) => 
 const FollowUpsPage = lazy(() => import('../pages/FollowUpsPage.jsx').then((m) => ({ default: m.FollowUpsPage })))
 const TasksPage = lazy(() => import('../pages/TasksPage.jsx').then((m) => ({ default: m.TasksPage })))
 const UsersPage = lazy(() => import('../pages/UsersPage.jsx').then((m) => ({ default: m.UsersPage })))
+const AuditLogPage = lazy(() => import('../pages/AuditLogPage.jsx').then((m) => ({ default: m.AuditLogPage })))
 const NotFoundPage = lazy(() => import('../pages/NotFoundPage.jsx').then((m) => ({ default: m.NotFoundPage })))
 
 export function AppRoutes() {
@@ -49,6 +50,14 @@ export function AppRoutes() {
             element={
               <ProtectedRoute allowedRoles={['ADMIN']}>
                 <UsersPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="audit-log"
+            element={
+              <ProtectedRoute allowedRoles={['ADMIN', 'SALES_MANAGER']}>
+                <AuditLogPage />
               </ProtectedRoute>
             }
           />

@@ -2,7 +2,7 @@ import { useDroppable } from '@dnd-kit/core'
 import { OpportunityCard } from './OpportunityCard.jsx'
 import { STAGE_LABELS } from '../../utils/constants.js'
 
-export function KanbanColumn({ stage, opportunities, onDelete }) {
+export function KanbanColumn({ stage, opportunities, onDelete, onStageChange }) {
   const { setNodeRef, isOver } = useDroppable({ id: stage })
 
   return (
@@ -13,7 +13,12 @@ export function KanbanColumn({ stage, opportunities, onDelete }) {
       </div>
       <div className="kanban-column-cards">
         {opportunities.map((opportunity) => (
-          <OpportunityCard key={opportunity.id} opportunity={opportunity} onDelete={onDelete} />
+          <OpportunityCard
+            key={opportunity.id}
+            opportunity={opportunity}
+            onDelete={onDelete}
+            onStageChange={onStageChange}
+          />
         ))}
       </div>
     </div>

@@ -3,8 +3,9 @@ import { CSS } from '@dnd-kit/utilities'
 import { Link } from 'react-router-dom'
 import { Trash2 } from 'lucide-react'
 import { formatCurrency } from '../../utils/formatters.js'
+import { OPPORTUNITY_STAGES, STAGE_LABELS } from '../../utils/constants.js'
 
-export function OpportunityCard({ opportunity, onDelete }) {
+export function OpportunityCard({ opportunity, onDelete, onStageChange }) {
   const { attributes, listeners, setNodeRef, transform, isDragging } = useDraggable({
     id: opportunity.id,
   })
@@ -38,6 +39,23 @@ export function OpportunityCard({ opportunity, onDelete }) {
       >
         View customer
       </Link>
+      {onStageChange && (
+        // Keyboard/touch alternative to dragging.
+        <select
+          className="opportunity-card-stage"
+          aria-label={`Move ${opportunity.title} to stage`}
+          value={opportunity.stage}
+          onPointerDown={(e) => e.stopPropagation()}
+          onKeyDown={(e) => e.stopPropagation()}
+          onChange={(e) => onStageChange(opportunity.id, e.target.value)}
+        >
+          {OPPORTUNITY_STAGES.map((s) => (
+            <option key={s} value={s}>
+              {STAGE_LABELS[s]}
+            </option>
+          ))}
+        </select>
+      )}
     </div>
   )
 }

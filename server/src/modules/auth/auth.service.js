@@ -2,6 +2,7 @@ import { prisma } from '../../lib/prisma.js'
 import { hashPassword, comparePassword } from '../../utils/password.js'
 import { signToken } from '../../utils/jwt.js'
 import { ApiError } from '../../utils/ApiError.js'
+import { env } from '../../config/env.js'
 
 function toSafeUser(user) {
   const { password, ...safeUser } = user
@@ -9,6 +10,9 @@ function toSafeUser(user) {
 }
 
 export async function registerUser({ name, email, password }) {
+  if (!env.allowRegistration) {
+    throw new ApiError(403, 'Self-registration is disabled. Ask an administrator for an account.')
+  }
   const hashed = await hashPassword(password)
 
   // Self-serve registration always creates a SALES_EXECUTIVE — elevated roles

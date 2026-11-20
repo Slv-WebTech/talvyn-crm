@@ -1,4 +1,5 @@
 import { z } from 'zod'
+import { passwordSchema } from '../auth/auth.validation.js'
 
 export const ROLES = ['ADMIN', 'SALES_MANAGER', 'SALES_EXECUTIVE']
 
@@ -9,7 +10,7 @@ export const idParamSchema = z.object({
 export const createUserSchema = z.object({
   name: z.string().min(1, 'Name is required'),
   email: z.string().email('Must be a valid email'),
-  password: z.string().min(8, 'Password must be at least 8 characters'),
+  password: passwordSchema,
   role: z.enum(ROLES).optional(),
 })
 
